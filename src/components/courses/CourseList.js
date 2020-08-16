@@ -13,7 +13,7 @@ const CourseList = ({ courses }) => (
       </tr>
     </thead>
     <tbody>
-      {courses.map((course) => {
+      {courses.map(course => {
         return (
           <tr key={course.id}>
             <td>
@@ -37,7 +37,7 @@ const CourseList = ({ courses }) => (
 );
 
 CourseList.propTypes = {
-  courses: PropTypes.array.isRequired,
+  courses: PropTypes.array.isRequired
 };
 
 export default CourseList;

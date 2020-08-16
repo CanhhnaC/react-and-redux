@@ -8,7 +8,7 @@ const SelectInput = ({
   defaultOption,
   value,
   error,
-  options,
+  options
 }) => {
   return (
     <div className="form-group">
@@ -22,7 +22,7 @@ const SelectInput = ({
           className="form-control"
         >
           <option value="">{defaultOption}</option>
-          {options.map((option) => {
+          {options.map(option => {
             return (
               <option key={option.value} value={option.value}>
                 {option.text}
@@ -43,7 +43,7 @@ SelectInput.propTypes = {
   defaultOption: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   error: PropTypes.string,
-  options: PropTypes.arrayOf(PropTypes.object),
+  options: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default SelectInput;
