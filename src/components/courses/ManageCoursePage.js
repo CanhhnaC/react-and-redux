@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { toast } from 'react-toastify'
+import { toast } from "react-toastify";
 import { loadCourses, saveCourse } from "../../redux/actions/courseActions";
 import { loadAuthors } from "../../redux/actions/authorActions";
 import CourseForm from "./CourseForm";
 import { newCourse } from "../../../tools/mockData";
-import Spinner from '../common/Spinner'
-
+import Spinner from "../common/Spinner";
 
 function ManageCoursePage({
   courses,
@@ -19,12 +18,13 @@ function ManageCoursePage({
   ...props
 }) {
   const [course, setCourse] = useState({ ...props.course });
+  // eslint-disable-next-line no-console
   const [errors, setErrors] = useState({});
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (courses.length === 0) {
-      loadCourses().catch(error => {
+      loadCourses().catch((error) => {
         alert("Loading courses failed" + error);
       });
     } else {
@@ -32,40 +32,59 @@ function ManageCoursePage({
     }
 
     if (authors.length === 0) {
-      loadAuthors().catch(error => {
+      loadAuthors().catch((error) => {
         alert("Loading authors failed" + error);
       });
     }
   }, [props.course]);
 
+  function formIsValid() {
+    const { title, authorId, category } = course;
+    const errors = {};
+
+    if (!title) errors.title = "Title is required.";
+    if (!authorId) errors.author = "Author is required";
+    if (!category) errors.category = "Category is required";
+
+    setErrors(errors);
+    // Form is valid if the errors object still has no properties
+    return Object.keys(errors).length === 0;
+  }
+
   function handleChange(event) {
     const { name, value } = event.target;
-    setCourse(prevCourse => ({
+    setCourse((prevCourse) => ({
       ...prevCourse,
-      [name]: name === "authorId" ? parseInt(value, 10) : value
+      [name]: name === "authorId" ? parseInt(value, 10) : value,
     }));
   }
 
   function handleSave(event) {
     event.preventDefault();
-    setSaving(true)
-    saveCourse(course).then(() => {
-      toast.success("Course saved.")
-      history.push("/courses");
-    });
+    if (!formIsValid()) return;
+    setSaving(true);
+    saveCourse(course)
+      .then(() => {
+        toast.success("Course saved.");
+        history.push("/courses");
+      })
+      .catch((error) => {
+        setSaving(false);
+        setErrors({ onSave: error.message });
+      });
   }
 
-  return (
-    authors.length === 0 || courses.length === 0
-      ? <Spinner />
-      : <CourseForm
-        course={course}
-        errors={errors}
-        authors={authors}
-        onChange={handleChange}
-        onSave={handleSave}
-        saving={saving}
-      />
+  return authors.length === 0 || courses.length === 0 ? (
+    <Spinner />
+  ) : (
+    <CourseForm
+      course={course}
+      errors={errors}
+      authors={authors}
+      onChange={handleChange}
+      onSave={handleSave}
+      saving={saving}
+    />
   );
 }
 
@@ -76,11 +95,11 @@ ManageCoursePage.propTypes = {
   loadCourses: PropTypes.func.isRequired,
   loadAuthors: PropTypes.func.isRequired,
   saveCourse: PropTypes.func.isRequired,
-  history: PropTypes.object.isRequired
+  history: PropTypes.object.isRequired,
 };
 
 export function getCourseBySlug(courses, slug) {
-  return courses.find(course => course.slug === slug) || null;
+  return courses.find((course) => course.slug === slug) || null;
 }
 
 function mapStateToProps(state, ownProps) {
@@ -92,17 +111,14 @@ function mapStateToProps(state, ownProps) {
   return {
     course,
     courses: state.courses,
-    authors: state.authors
+    authors: state.authors,
   };
 }
 
 const mapDispatchToProps = {
   loadCourses,
   loadAuthors,
-  saveCourse
+  saveCourse,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ManageCoursePage);
+export default connect(mapStateToProps, mapDispatchToProps)(ManageCoursePage);
